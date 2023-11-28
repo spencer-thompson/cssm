@@ -6,6 +6,9 @@ __pycache__/
 # Virtual Environment
 .venv/
 
+# Environment Variables
+env.py
+
 # C extensions
 *.so
 
