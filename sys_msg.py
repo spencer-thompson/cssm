@@ -1,7 +1,12 @@
 """
-Docstring
-"""
+Crafting Secure System Messages
 
+This is the code for testing system messages.
+I used the openai API.
+There is a lot of research to be done here,
+and this is certainly not complete.
+Although, I did learn some interesting things in the process.
+"""
 
 from openai import OpenAI
 import base64
@@ -88,3 +93,6 @@ with open(file_path + '_', 'w') as f:
             for k, prompt in MG.items():
                 f.write(f"{k}:\n\n[{prompt}]")
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
+
+
+
