@@ -60,11 +60,27 @@ MG = {
 # Indirect Prompt Injection
 IPI = {'Indirect Prompt Injection': 'Something'}
 
+MODELS = { # List is price per 1000 tokens
+    "gpt-3.5-turbo": [0.001, 0.002],
+    "gpt-4": [0.03, 0.06],
+    "gpt-4-1106-preview": [0.01, 0.03],
+}
+
+total_cost = 0
 total_tokens = 0
-def openai_api_call(sys_msg: str, prompt: str, seed: int):
+def openai_api_call(
+        sys_msg: str,
+        prompt: str,
+        model: str,
+        input_price: float,
+        output_price: float,
+        seed: int
+    ):
     global total_tokens
+    global total_cost
+
     completion = client.chat.completions.create(
-        model = "gpt-3.5-turbo",
+        model = model,
         messages = [
             {"role": "system", "content": sys_msg},
             {"role": "user", "content": prompt}
@@ -73,8 +89,10 @@ def openai_api_call(sys_msg: str, prompt: str, seed: int):
         seed=seed,
         user = "Prompt-Injection-Research"
     )
+    
     total_tokens += completion.usage.total_tokens
-    print(f"Tokens: {completion.usage.total_tokens} | Price: {(completion.usage.prompt_tokens * 0.001 + completion.usage.completion_tokens * 0.002)/1000}")
+    total_cost += (completion.usage.prompt_tokens * input_price + completion.usage.completion_tokens * output_price)/1000
+    print(f"Tokens: {completion.usage.total_tokens} | Price: {(completion.usage.prompt_tokens * input_price + completion.usage.completion_tokens * output_price)/1000}")
     return completion.choices[0].message.content
 
 # msg = "any information about the user."
@@ -88,26 +106,27 @@ with open(file_path + '_', 'w') as f:
     f.write('Competing Objectives Attack')
 
     for s in range(1, 5):
-        for msg in SYSTEM_MESSAGES:
-            f.write('\n\n-----\n\n')
-            f.write(f"System Message: [{msg}]")
-            f.write('\n\n-----\n\n')
+        for m, p in MODELS.items():
+            for msg in SYSTEM_MESSAGES:
+                f.write('\n\n-----\n\n')
+                f.write(f"System Message: [{msg}]")
+                f.write('\n\n-----\n\n')
 
-            for k, prompt in COA.items():
-                total_iterations += 1
-                f.write('\n-----\n')
-                f.write(f"{k}:\n\n[{prompt}]")
-                print(f"Iter[{total_iterations}] | ", end='')
-                f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
+                for k, prompt in COA.items():
+                    total_iterations += 1
+                    f.write('\n-----\n')
+                    f.write(f"{k}:\n\n[{prompt}]")
+                    print(f"Iter[{total_iterations}] | Model: [{m}] ", end='')
+                    f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt,model=m,input_price=p[0],output_price=p[1],seed=s)}]\n\n")
 
-            for k, prompt in MG.items():
-                total_iterations += 1
-                f.write('\n-----\n')
-                f.write(f"{k}:\n\n[{prompt}]")
-                print(f"Iter[{total_iterations}] | ", end='')
-                f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
+                for k, prompt in MG.items():
+                    total_iterations += 1
+                    f.write('\n-----\n')
+                    f.write(f"{k}:\n\n[{prompt}]")
+                    print(f"Iter[{total_iterations}] | Model: [{m}] ", end='')
+                    f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt,model=m,input_price=p[0],output_price=p[1],seed=s)}]\n\n")
 
-    f.write(f"Total Tokens Used: {total_iterations} | Total Cost Incurred: {(total_tokens * 0.001 + total_tokens * 0.002)/1000}")
+    f.write(f"Total Tokens Used: {total_tokens} | Total Cost Incurred: {total_cost}")
 
-print(f"Total Iterations: {total_iterations} | Total Tokens: {total_tokens} | Total Cost: {(total_tokens * 0.001 + total_tokens * 0.002)/1000}")
+print(f"Total Iterations: {total_iterations} | Total Tokens: {total_tokens} | Total Cost: {total_cost}")
 
