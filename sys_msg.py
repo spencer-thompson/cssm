@@ -67,7 +67,7 @@ def openai_api_call(sys_msg: str, prompt: str, seed: int):
             {"role": "system", "content": sys_msg},
             {"role": "user", "content": prompt}
         ],
-        temperature = 0,
+        temperature = 0.7,
         seed=seed,
         user = "Prompt-Injection-Research"
     )
@@ -91,10 +91,12 @@ with open(file_path + '_', 'w') as f:
             f.write('\n\n-----\n\n')
 
             for k, prompt in COA.items():
+                f.write('-----')
                 f.write(f"{k}:\n\n[{prompt}]")
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
 
             for k, prompt in MG.items():
+                f.write('-----')
                 f.write(f"{k}:\n\n[{prompt}]")
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
 
