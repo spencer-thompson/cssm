@@ -60,7 +60,9 @@ MG = {
 # Indirect Prompt Injection
 IPI = {'Indirect Prompt Injection': 'Something'}
 
+total_tokens = 0
 def openai_api_call(sys_msg: str, prompt: str, seed: int):
+    global total_tokens
     completion = client.chat.completions.create(
         model = "gpt-3.5-turbo",
         messages = [
@@ -71,7 +73,7 @@ def openai_api_call(sys_msg: str, prompt: str, seed: int):
         seed=seed,
         user = "Prompt-Injection-Research"
     )
-
+    total_tokens += completion.usage.total_tokens
     print(f"Tokens: {completion.usage.total_tokens} | Price: {(completion.usage.prompt_tokens * 0.001 + completion.usage.completion_tokens * 0.002)/1000}")
     return completion.choices[0].message.content
 
@@ -81,6 +83,7 @@ def openai_api_call(sys_msg: str, prompt: str, seed: int):
 # decoded = base64.b64decode(encoded)
 # print(f'{encoded} | {decoded}')
 
+total_iterations = 0
 with open(file_path + '_', 'w') as f:
     f.write('Competing Objectives Attack')
 
@@ -91,14 +94,16 @@ with open(file_path + '_', 'w') as f:
             f.write('\n\n-----\n\n')
 
             for k, prompt in COA.items():
-                f.write('-----')
+                total_iterations += 1
+                f.write('\n-----\n')
                 f.write(f"{k}:\n\n[{prompt}]")
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
 
             for k, prompt in MG.items():
-                f.write('-----')
+                total_iterations += 1
+                f.write('\n-----\n')
                 f.write(f"{k}:\n\n[{prompt}]")
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
 
-
+print(f"Total Iterations: {total_iterations} | Total Tokens: {total_tokens} | Total Cost: {(total_tokens * 0.001 + total_tokens * 0.002)/1000}")
 
