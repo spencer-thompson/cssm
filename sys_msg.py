@@ -97,6 +97,7 @@ with open(file_path + '_', 'w') as f:
                 total_iterations += 1
                 f.write('\n-----\n')
                 f.write(f"{k}:\n\n[{prompt}]")
+                print(f"Iter[{total_iterations}]", end='')
                 f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt, seed=s)}]\n\n")
 
             for k, prompt in MG.items():
