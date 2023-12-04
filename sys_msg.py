@@ -104,7 +104,7 @@ total_iterations = 0
 with open(file_path, 'w') as f:
     f.write('Competing Objectives Attack')
 
-    for s in range(1, 5):
+    for s in range(1, 5): # Testing different seeds -> reproducibility
         for m, p in MODELS.items():
             for msg in SYSTEM_MESSAGES:
                 f.write('\n\n-----\n\n')
