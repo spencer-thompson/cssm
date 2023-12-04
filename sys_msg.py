@@ -111,14 +111,14 @@ with open(file_path, 'w') as f:
                 f.write(f"System Message: [{msg}]")
                 f.write('\n\n-----\n\n')
 
-                for k, prompt in COA.items():
+                for k, prompt in COA.items(): # Competing Objectives Attack
                     total_iterations += 1
                     f.write('\n-----\n')
                     f.write(f"{k}:\n\n[{prompt}]")
                     print(f"Iter[{total_iterations}] | Model: [{m}] ", end='')
                     f.write(f"\n\nAI Response: [{openai_api_call(sys_msg=msg,prompt=prompt,model=m,input_price=p[0],output_price=p[1],seed=s)}]\n\n")
 
-                for k, prompt in MG.items():
+                for k, prompt in MG.items(): # Mismatched Generalization
                     total_iterations += 1
                     f.write('\n-----\n')
                     f.write(f"{k}:\n\n[{prompt}]")
